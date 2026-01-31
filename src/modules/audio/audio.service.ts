@@ -5,7 +5,7 @@ import fs from 'fs';
 @Injectable()
 export class AudioService {
   private openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.OPENAI_KEY,
   });
 
   async transcribe(file: Express.Multer.File): Promise<string> {
