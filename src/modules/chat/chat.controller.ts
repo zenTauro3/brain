@@ -14,26 +14,20 @@ export class ChatController {
       message: '¿How should I contact Juan?',
     };
 
-    // 1) NLU
     const nlu = await this.chatService.extractNLU(data.message);
-
-    // 2) buscar facts existentes
     const facts = await this.chatService.findFacts(data.userId, nlu.entities);
-
-    // 3) crear embedding
     const embedding = await this.chatService.createEmbedding(data.message);
-
-    // 4) buscar memorias
     const memories = await this.chatService.findMemories(data.userId, embedding);
 
-    // 5) pedir respuesta + candidates (newFact/newMemory) al LLM
-    const { answer, newFact, newMemory } = await this.chatService.generateAnswerAndCandidates(facts, memories, data.message);
+    const { answer, newFact, newMemory } = await this.chatService.generateAnswer(
+      facts,
+      memories,
+      data.message,
+    );
 
-    // 6) si LLM propuso newFact, insertar solo si no existía
     let savedFact = null;
     try {
       if (newFact && newFact.key && newFact.value) {
-        // normalizar objeto a Fact type
         const factToSave = {
           key: newFact.key,
           value: newFact.value,
@@ -42,19 +36,16 @@ export class ChatController {
         savedFact = await this.chatService.upsertOrReturnExistingFact(data.userId, factToSave);
       }
     } catch (err) {
-      // log y seguir — no queremos que un fallo al guardar bloquee la respuesta
-      // ideal: metrics / sentry
       console.warn('Failed saving newFact:', err);
     }
 
-    // 7) si LLM propuso newMemory, guardar
     let savedMemory = null;
     try {
       if (newMemory && newMemory.content) {
         const memToSave = {
           content: newMemory.content,
           importance: Number(newMemory.importance ?? 1),
-          embedding: embedding, // usamos el embedding ya calculado de la petición
+          embedding: embedding,
         };
         savedMemory = await this.chatService.saveMemory(data.userId, memToSave);
       }
@@ -62,7 +53,6 @@ export class ChatController {
       console.warn('Failed saving newMemory:', err);
     }
 
-    // 8) devolvemos la respuesta + lo que se guardó (si se guardó)
     return {
       answer,
       savedFact,
