@@ -10,7 +10,7 @@ export class ChatController {
   async ask(): Promise<string> {
     const data: MessageClient = {
       userId: '9b7c2a0e-5f3a-4c9e-bf7d-3b9c8e1a4a22',
-      message: '¿Cómo debería contactar a Juan?',
+      message: '¿How should I contact Juan?',
     };
 
     const nlu = await this.chatService.extractNLU(data.message);

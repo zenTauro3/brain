@@ -9,7 +9,6 @@ export class ChatService {
   private openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
   private db = new Pool({ connectionString: process.env.DATABASE_URL });
 
-  // 1️⃣ Extract intent, entities, and topics
   async extractNLU(message: string): Promise<ExtractedNLU> {
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -23,7 +22,6 @@ export class ChatService {
     return JSON.parse(completion.choices[0].message.content!);
   }
 
-  // 2️⃣ Find relevant facts from DB
   async findFacts(userId: string, entities: { type: string; value: string }[]): Promise<Fact[]> {
     if (!entities?.length) return [];
     const values = entities.map(e => `%${e.value}%`);
@@ -40,7 +38,6 @@ export class ChatService {
     return res.rows.filter(row => row.confidence >= 0.7);
   }
 
-  // 3️⃣ Create embedding for semantic search
   async createEmbedding(message: string): Promise<number[]> {
     const response = await this.openai.embeddings.create({
       model: 'text-embedding-3-small',
@@ -49,7 +46,6 @@ export class ChatService {
     return response.data[0].embedding;
   }
 
-  // 4️⃣ Find top relevant memories
   async findMemories(userId: string, embedding: number[], limit = 10): Promise<Memory[]> {
     const res = await this.db.query(
       `
@@ -68,7 +64,6 @@ export class ChatService {
     }));
   }
 
-  // 5️⃣ Generate final answer using ASK_PROMPT
   async generateAnswer(facts: Fact[], memories: Memory[], message: string) {
     const prompt = ASK_PROMPT({ facts, memories, message });
     const completion = await this.openai.chat.completions.create({
@@ -82,7 +77,6 @@ export class ChatService {
     return completion.choices[0].message?.content ?? '';
   }
 
-  // 6️⃣ Save or update a fact
   async saveFact(userId: string, fact: Fact) {
     await this.db.query(
       `
@@ -95,7 +89,6 @@ export class ChatService {
     );
   }
 
-  // 7️⃣ Save a new memory
   async saveMemory(userId: string, memory: Memory) {
     await this.db.query(
       `
