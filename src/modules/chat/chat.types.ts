@@ -1,4 +1,4 @@
-export interface MessageClient {
+export interface ChatRequest {
   userId: string;
   message: string;
 }
