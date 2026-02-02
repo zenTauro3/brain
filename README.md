@@ -20,16 +20,34 @@ ALTER USER jaume CREATEDB;
 
 GRANT ALL PRIVILEGES ON DATABASE brain TO jaume;
 GRANT ALL PRIVILEGES ON TABLE memories TO jaume;
+`
 
+---
+
+`
 CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE facts (
+id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+user_id UUID NOT NULL,
+type TEXT NOT NULL,
+value TEXT NOT NULL,
+confidence FLOAT DEFAULT 1.0,
+created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+UNIQUE (user_id, type)
+);
+
+CREATE INDEX idx_facts
+ON facts (user_id, type, value);
 
 CREATE TABLE memories (
 id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 user_id UUID NOT NULL,
 content TEXT NOT NULL,
 embedding VECTOR(1536),
-type TEXT,
-importance INTEGER NOT NULL DEFAULT 1,
+importance INTEGER NOT NULL DEFAULT 1, -- 1–5
+confidence FLOAT DEFAULT 1.0, -- 0–1
 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

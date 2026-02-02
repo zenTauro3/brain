@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OpenAI } from 'openai';
 import { Pool } from 'pg';
-import { Memory } from './chat.types';
+import { Fact, Memory } from './chat.types';
 import { ASK_SYSTEM_PROMPT, ASK_USER_PROMPT } from './chat.constants';
 import { dbConfig } from '../../config/database.config';
 
@@ -11,6 +11,11 @@ export class ChatService {
   private openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
   private db = new Pool(dbConfig);
 
+  async findFacts(userId: string): Promise<Fact[]> {
+    const res = await this.db.query(`SELECT * FROM facts WHERE user_id = $1`, [userId]);
+    return res.rows;
+  }
+
   async createEmbedding(message: string): Promise<number[]> {
     const response = await this.openai.embeddings.create({
       model: 'text-embedding-3-small',
@@ -19,13 +24,13 @@ export class ChatService {
     return response.data[0].embedding;
   }
 
-  private embeddingToVectorLiteral(e: number[]) {
+  private embeddingToVector(e: number[]) {
     return '[' + e.map((n) => Number(n).toString()).join(',') + ']';
   }
 
   async findMemories(userId: string, embedding: number[], limit = 10): Promise<Memory[]> {
     if (!embedding || !embedding.length) return [];
-    const vectorLiteral = this.embeddingToVectorLiteral(embedding);
+    const vectorLiteral = this.embeddingToVector(embedding);
     const res = await this.db.query(
       `
       SELECT content, embedding, importance
@@ -45,9 +50,11 @@ export class ChatService {
 
   async generateAnswer(
     message: string,
+    facts: Fact[],
     memories: Memory[],
   ): Promise<{
     answer: string;
+    newFacts: Fact[] | null;
     newMemories: Memory[] | null;
   }> {
     const completion = await this.openai.chat.completions.create({
@@ -57,7 +64,7 @@ export class ChatService {
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: ASK_SYSTEM_PROMPT },
-        { role: 'user', content: ASK_USER_PROMPT(memories, message) },
+        { role: 'user', content: ASK_USER_PROMPT(facts, memories, message) },
       ],
     });
 
@@ -69,6 +76,7 @@ export class ChatService {
       this.logger.warn('Invalid JSON from LLM: ' + raw);
       return {
         answer: raw,
+        newFacts: null,
         newMemories: null,
       };
     }
@@ -76,7 +84,7 @@ export class ChatService {
 
   async saveMemory(userId: string, memory: Memory) {
     const embedding = await this.createEmbedding(memory.content);
-    const vectorLiteral = this.embeddingToVectorLiteral(embedding);
+    const vectorLiteral = this.embeddingToVector(embedding);
     const res = await this.db.query(
       `
       INSERT INTO memories (user_id, content, embedding, importance)
