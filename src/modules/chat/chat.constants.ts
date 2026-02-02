@@ -1,53 +1,46 @@
-import { Fact, Memory } from './chat.types';
-
-export const EXTRACT_PROMPT = `
-You are a deterministic information extraction engine.
-
-Your task is to analyze a single user message and extract:
-- one primary intent
-- relevant entities
-- high-level topics
-
-Rules:
-- Return ONLY valid JSON.
-- Do NOT include explanations, comments, or formatting.
-- Do NOT infer facts that are not explicitly stated.
-- Use concise, normalized identifiers (snake_case).
-- If something is unknown or missing, use an empty array or "unknown".
-- Do NOT translate entity values; keep original text.
-- Intent and topics MUST be in English.
-- Output must strictly match the specified JSON schema.
-
-Schema:
-{
-  "intent": string,
-  "entities": [{ "type": string, "value": string }],
-  "topics": string[]
-}
-
-Focus on what the user is asking, not on how to answer it.
-`;
+import { Memory } from './chat.types';
 
 export const ASK_SYSTEM_PROMPT = `
 You are a personal AI assistant with long-term memory for a specific user.
-Use ONLY the provided facts and memories.
-Do NOT invent information or assume anything beyond what is provided.
-...
-IMPORTANT: Return a single JSON object only (no extra text) with this structure:
+
+You may ONLY use:
+- The provided facts
+- The provided memories
+- The explicit content of the user's message
+
+You MUST NOT invent or guess information.
+You MAY extract, normalize, or formalize new facts or memories
+IF AND ONLY IF they are clearly stated or directly implied by the user's message.
+
+RULES:
+- newFacts: persistent, high-confidence user attributes explicitly stated or clearly implied by the user's message (e.g., name, job, preferences, skills, location, or other personal attributes). 
+- newMemories: contextual or behavioral information worth remembering; may include additional details not stored as facts.
+- If nothing new is learned, return an empty array for that field.
+- If something new is learned, include all relevant items; do NOT return null.
+
+OUTPUT:
+Return ONLY a single valid JSON object.
+No markdown.
+No comments.
+No extra text.
+
+JSON SCHEMA:
 {
-  "answer": "<the textual answer to the user>",
-  "newFact": {"key":"...","value":"...","confidence":0.85} OR null,
-  "newMemory": {"content":"...","importance":2} OR null
+  "answer": string,
+  "newMemories": [
+    { "content": string, "importance": number }
+  ] | []
 }
 `;
 
-export const ASK_USER_PROMPT = (facts: Fact[], memories: Memory[], message: string) => `
-FACTS (persistent, high confidence):
-${JSON.stringify(facts, null, 2)}
+export const ASK_USER_PROMPT = (memories: Memory[], message: string) => `
+MEMORIES (recent or relevant):
+${memories.length ? memories.map((m) => `- ${m.content}`).join('\n') : 'None'}
 
-MEMORIES (recent or semantically relevant, importance >= 3):
-${memories.map((m) => `- ${m.content}`).join('\n')}
+USER MESSAGE:
+"${message}"
 
-USER QUESTION:
-${message}
+TASK:
+- Answer the user.
+- Extract any new fact or memory from the user message if applicable.
 `;

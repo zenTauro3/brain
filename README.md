@@ -9,34 +9,21 @@ sudo apt install postgresql-client
 sudo apt install postgresql-16-pgvector
 sudo systemctl status postgresql
 
+sudo -u postgres psql
 psql -h localhost -p 5432 -U jaume -d brain
 
 `
 CREATE DATABASE brain;
 
-CREATE USER jaume WITH PASSWORD 'password_segura';
+CREATE USER jaume WITH PASSWORD '1234';
 ALTER USER jaume CREATEDB;
 
 GRANT ALL PRIVILEGES ON DATABASE brain TO jaume;
-GRANT ALL PRIVILEGES ON TABLE user_facts TO jaume;
-GRANT ALL PRIVILEGES ON TABLE memory_entries TO jaume;
+GRANT ALL PRIVILEGES ON TABLE memories TO jaume;
 
 CREATE EXTENSION IF NOT EXISTS vector;
 
-CREATE TABLE user_facts (
-id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-user_id UUID NOT NULL,
-fact_key TEXT NOT NULL,
-value TEXT NOT NULL,
-confidence REAL NOT NULL DEFAULT 1.0,
-created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_user_facts_user_key_value
-ON user_facts (user_id, fact_key, value);
-
-CREATE TABLE memory_entries (
+CREATE TABLE memories (
 id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 user_id UUID NOT NULL,
 content TEXT NOT NULL,
@@ -47,8 +34,8 @@ created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_memory_entries_embedding
-ON memory_entries
+CREATE INDEX idx_memories
+ON memories
 USING ivfflat (embedding vector_l2_ops)
 WITH (lists = 100);
 `
