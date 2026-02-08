@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OpenAI } from 'openai';
-import { FactService } from '../facts/fact.service';
+import { FactService } from '../facts/facts.service';
 import { MemoryService } from '../memories/memories.service';
 import { Fact, Memory } from './chat.types';
 import { ASK_SYSTEM_PROMPT, ASK_USER_PROMPT } from './chat.constants';
