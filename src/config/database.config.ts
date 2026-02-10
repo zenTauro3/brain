@@ -1,6 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { FactEntity } from '../modules/facts/facts.entity';
-import { MemoryEntity } from '../modules/memories/memories.entity';
+import { FactEntity } from '../modules/knowledge/facts.entity';
+import { MemoryEntity } from '../modules/knowledge/memories.entity';
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'postgres',

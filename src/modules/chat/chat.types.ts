@@ -1,5 +1,5 @@
 export interface ChatRequest {
-  userId: string;
+  userId: number;
   message: string;
 }
 

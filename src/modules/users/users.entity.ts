@@ -2,29 +2,35 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  Unique,
   CreateDateColumn,
-  UpdateDateColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('users')
-@Unique(['email'])
+@Index(['email'], { unique: true })
+@Index(['username'], { unique: true })
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn('increment')
+  id!: number;
 
-  @Column({ type: 'text', nullable: true })
-  name!: string | null;
-
-  @Column({ type: 'text' })
+  @Column({ type: 'text', unique: true })
   email!: string;
 
-  @Column({ type: 'text' })
-  password!: string;
+  @Column({ type: 'text', unique: true })
+  username!: string;
+
+  @Column({ type: 'text', nullable: true })
+  name?: string;
+
+  @Column({ type: 'text', nullable: true })
+  locale?: string;
+
+  @Column({ type: 'text', nullable: true })
+  timezone?: string;
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
-  updatedAt!: Date;
+  @Column({ type: 'timestamptz', name: 'last_seen_at', nullable: true })
+  lastSeenAt?: Date;
 }

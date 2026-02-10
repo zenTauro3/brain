@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MemoryEntity } from './memories.entity';
-import { MemoryService } from './memories.service';
+import { MemoriesService } from './memories.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MemoryEntity])],
-  providers: [MemoryService],
-  exports: [MemoryService],
+  providers: [MemoriesService],
+  exports: [MemoriesService],
 })
 export class MemoriesModule {}
