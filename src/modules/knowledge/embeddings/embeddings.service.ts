@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EmbeddingEntity } from './embeddings.entity';
@@ -9,10 +9,9 @@ export class EmbeddingsService {
   constructor(
     @InjectRepository(EmbeddingEntity)
     private readonly embeddingRepository: Repository<EmbeddingEntity>,
-
-    @Inject('OPENAI_CLIENT')
-    private readonly openai: OpenAI,
   ) {}
+
+  private openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
   async createEmbedding(message: string): Promise<number[]> {
     const response = await this.openai.embeddings.create({
@@ -43,7 +42,7 @@ export class EmbeddingsService {
       .where('e.user_id = :userId', { userId })
       .andWhere('e.source_id IS NOT NULL')
       .orderBy('e.vector <-> :vector', 'ASC')
-      .setParameter('vector', vector)
+      .setParameter('vector', `[${vector.join(',')}]`)
       .limit(topK)
       .getMany();
   }

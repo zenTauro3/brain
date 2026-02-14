@@ -1,27 +1,29 @@
 import { Module } from '@nestjs/common';
-import { EmbeddingsService } from '../knowledge/embeddings.service';
-import { FactsService } from '../knowledge/facts.service';
-import { MemoriesService } from '../knowledge/memories.service';
-import { GoalsService } from '../knowledge/goals.service';
-import { HabitsService } from '../knowledge/habits.service';
-import { TraitsService } from '../knowledge/traits.service';
-import { PreferencesService } from '../knowledge/preferences.service';
-import { BeliefsService } from '../knowledge/beliefs.service';
-import { RelationshipsService } from '../knowledge/relationships.service';
-import { ChatService } from './chat.service';
+import { EmbeddingsModule } from '../knowledge/embeddings/embeddings.module';
+import { FactsModule } from '../knowledge/facts/facts.module';
+import { GoalsModule } from '../knowledge/goals/goals.module';
+import { BeliefsModule } from '../knowledge/beliefs/beliefs.module';
+import { EmotionalStateModule } from '../knowledge/emotional_state/emotional_state.module';
+import { HabitsModule } from '../knowledge/habits/habits.module';
+import { MemoriesModule } from '../knowledge/memories/memories.module';
+import { PreferencesModule } from '../knowledge/preferences/preferences.module';
+import { RelationshipsModule } from '../knowledge/relationships/relationships.module';
+import { TraitsModule } from '../knowledge/traits/traits.module';
 import { ChatController } from './chat.controller';
+import { ChatService } from './chat.service';
 
 @Module({
   imports: [
-    EmbeddingsService,
-    FactsService,
-    MemoriesService,
-    GoalsService,
-    HabitsService,
-    TraitsService,
-    PreferencesService,
-    BeliefsService,
-    RelationshipsService,
+    EmbeddingsModule,
+    FactsModule,
+    MemoriesModule,
+    GoalsModule,
+    BeliefsModule,
+    EmotionalStateModule,
+    HabitsModule,
+    PreferencesModule,
+    RelationshipsModule,
+    TraitsModule,
   ],
   controllers: [ChatController],
   providers: [ChatService],

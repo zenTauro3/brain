@@ -12,7 +12,12 @@ export class ChatController {
     const data: ChatRequest = askRequest;
 
     const userKnowledge = await this.chatService.getUserKnowledge(data.userId, data.message);
-    const answer = await this.chatService.generateAnswer(data.message, userKnowledge);
+    const { answer, newElements } = await this.chatService.generateAnswer(
+      data.message,
+      userKnowledge,
+    );
+
+    console.log('New elements to add to the knowledge base:', newElements);
 
     return { answer };
   }

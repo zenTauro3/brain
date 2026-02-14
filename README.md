@@ -4,7 +4,7 @@ curl.exe -X POST http://localhost:3000/audio/transcribe -F "file=audio.m4a"
 
 # Chat
 
-curl.exe -X POST http://localhost:3000/chat/ask
+curl.exe -X POST http://localhost:3000/chat
 
 # Database
 
