@@ -8,7 +8,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   host: process.env.DB_HOST ?? 'localhost',
   port: Number(process.env.DB_PORT ?? 5432),
   username: process.env.DB_USER ?? 'postgres',
-  password: process.env.DB_PASSWORD ?? 'Cocoloco100',
+  password: process.env.DB_PASSWORD ?? '1234',
   database: process.env.DB_NAME ?? 'brain',
   entities: [Memory, User, Embedding],
   synchronize: false,

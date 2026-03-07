@@ -9,7 +9,7 @@ export class ChatService {
 
   async processChat(userId: string, message: string): Promise<string> {
     
-    const userKnowledge = await this.brainService.getFormattedKnowledge(userId);
+    const userKnowledge = await this.brainService.getFormattedKnowledge(userId, message);
     const answer = await this.brainService.generateAnswer(message, userKnowledge);
 
     this.brainService.generateAndSaveKnowledge(userId, message, userKnowledge)

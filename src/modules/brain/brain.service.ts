@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { Memory } from '@modules/brain/entities/memory.entity';
+import { Embedding } from '@modules/brain/entities/embedding.entity';
 import { NewKnowledgeSchema, NewKnowledgeType } from './schemas/extraction.schema';
 import { ANSWER_SYSTEM_PROMPT, EXTRACTION_SYSTEM_PROMPT } from './brain.constants';
 
@@ -15,24 +16,47 @@ export class BrainService {
   constructor(
     @InjectRepository(Memory)
     private readonly memoryRepo: Repository<Memory>,
+    @InjectRepository(Embedding)
+    private readonly embeddingRepo: Repository<Embedding>,
   ) {
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
-  async getFormattedKnowledge(userId: string): Promise<string> {
-    const memories = await this.memoryRepo.find({
-      where: { userId },
-      order: { importanceScore: 'DESC' },
-      take: 20,
+  private async createEmbedding(text: string): Promise<number[]> {
+    const response = await this.openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: text,
     });
+    return response.data[0].embedding;
+  }
 
-    if (memories.length === 0) {
-      return 'No hay información previa sobre este usuario.';
+  async getFormattedKnowledge(userId: string, userMessage: string): Promise<string> {
+    try {
+      const queryVector = await this.createEmbedding(userMessage);
+      const vectorStr = `[${queryVector.join(',')}]`;
+
+      const memories = await this.memoryRepo.query(
+        `
+        SELECT m.* FROM memories m
+        INNER JOIN embeddings e ON e.memory_id = m.id
+        WHERE m.user_id = $1
+        ORDER BY e.vector <=> $2
+        LIMIT 10
+      `,
+        [userId, vectorStr],
+      );
+
+      if (!memories || memories.length === 0) {
+        return 'No hay información previa relevante sobre este usuario.';
+      }
+
+      return memories
+        .map((m: any) => `[${m.category}] ${m.key}: ${JSON.stringify(m.value)}`)
+        .join('\n');
+    } catch (err) {
+      this.logger.error('Error fetching semantic knowledge', err);
+      return 'Error al recuperar conocimientos previos.';
     }
-
-    return memories
-      .map((m) => `[${m.category}] ${m.key}: ${JSON.stringify(m.value)}`)
-      .join('\n');
   }
 
   async generateAnswer(message: string, userKnowledge: string): Promise<string> {
@@ -55,7 +79,11 @@ export class BrainService {
     }
   }
 
-  async generateAndSaveKnowledge(userId: string, message: string, userKnowledge: string): Promise<void> {
+  async generateAndSaveKnowledge(
+    userId: string,
+    message: string,
+    userKnowledge: string,
+  ): Promise<void> {
     try {
       const completion = await this.openai.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -64,7 +92,10 @@ export class BrainService {
         messages: [
           {
             role: 'system',
-            content: EXTRACTION_SYSTEM_PROMPT.replace('{{userKnowledge}}', userKnowledge),
+            content: EXTRACTION_SYSTEM_PROMPT.replace('{{userKnowledge}}', userKnowledge).replace(
+              '{{currentDate}}',
+              new Date().toISOString(),
+            ),
           },
           { role: 'user', content: message },
         ],
@@ -83,17 +114,44 @@ export class BrainService {
 
   private async persistMemories(userId: string, memories: any[]) {
     for (const mem of memories) {
+      let finalValue = mem.value;
+      if (typeof finalValue === 'string') {
+        try {
+          finalValue = JSON.parse(finalValue);
+        } catch {
+          finalValue = { raw: mem.value };
+        }
+      }
+
       await this.memoryRepo.upsert(
         {
           userId,
           key: mem.key,
-          value: mem.value,
+          value: finalValue,
           category: mem.category,
           importanceScore: mem.importance_score,
           updatedAt: new Date(),
         },
         ['userId', 'key'],
       );
+
+      const savedMemory = await this.memoryRepo.findOne({
+        where: { userId, key: mem.key },
+      });
+
+      if (savedMemory) {
+        const textToEmbed = `${mem.key}: ${JSON.stringify(finalValue)}`;
+        const vector = await this.createEmbedding(textToEmbed);
+
+        await this.embeddingRepo.upsert(
+          {
+            userId: userId,
+            memoryId: savedMemory.id,
+            vector: vector,
+          },
+          ['memoryId'],
+        );
+      }
     }
   }
 }

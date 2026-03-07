@@ -26,4 +26,7 @@ INSTRUCTIONS:
 5. NO DUPLICATION: Do not extract information that is already identical in the provided context.
 
 CURRENT CONTEXT FOR REFERENCE:
-{{userKnowledge}}`;
+{{userKnowledge}}
+
+CURRENT DATE AND TIME:
+{{currentDate}}`;
