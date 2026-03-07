@@ -20,6 +20,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new GlobalHttpExceptionFilter());
+  app.useGlobalPipes(new ValidationPipe());
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

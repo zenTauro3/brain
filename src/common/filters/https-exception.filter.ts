@@ -1,10 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiResponse } from '../dto/api-response.dto';
 
@@ -14,6 +8,8 @@ export class GlobalHttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    console.error('🔥 ERROR:', exception);
+
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let code = 'INTERNAL_SERVER_ERROR';
@@ -22,10 +18,9 @@ export class GlobalHttpExceptionFilter implements ExceptionFilter {
       statusCode = exception.getStatus();
       const exceptionResponse = exception.getResponse() as any;
 
-      message =
-        Array.isArray(exceptionResponse?.message)
-          ? exceptionResponse.message.join(', ')
-          : exceptionResponse?.message || exception.message;
+      message = Array.isArray(exceptionResponse?.message)
+        ? exceptionResponse.message.join(', ')
+        : exceptionResponse?.message || exception.message;
 
       code = HttpStatus[statusCode];
     }

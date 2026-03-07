@@ -1,0 +1,26 @@
+### Prueba 1: Maria (Nueva mascota y dieta)
+POST http://localhost:3000/chat
+Content-Type: application/json
+
+{
+  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "message": "Hey there! I just adopted a Golden Retriever named Max. Also, I have decided to become a strict vegetarian starting today."
+}
+
+### Prueba 2: Maria (Actualización de memoria / cambio de dieta)
+POST http://localhost:3000/chat
+Content-Type: application/json
+
+{
+  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "message": "Actually, being vegetarian is too hard. I'm going back to eating chicken."
+}
+
+### Prueba 3: Alex (Ubicación y preferencias)
+POST http://localhost:3000/chat
+Content-Type: application/json
+
+{
+  "userId": "b1fcbd11-9c0b-4ef8-bb6d-6bb9bd380a22",
+  "message": "Hi! Just wanted to let you know that I recently moved to Valencia, Spain, and my absolute favorite drink while coding is green tea."
+}
