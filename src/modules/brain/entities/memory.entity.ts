@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Unique, OneToMany } from 'typeorm';
-import { User } from '@modules/users/user.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { User } from '@modules/users/user.entity'; 
 import { Embedding } from './embedding.entity';
 
 export enum MemoryCategory {
@@ -7,11 +7,11 @@ export enum MemoryCategory {
   FACT = 'FACT',
   GOAL = 'GOAL',
   RELATIONSHIP = 'RELATIONSHIP',
+  EVENT = 'EVENT', 
   OTHER = 'OTHER',
 }
 
 @Entity('memories')
-@Unique(['userId', 'key'])
 export class Memory {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -25,8 +25,8 @@ export class Memory {
   @Column({ type: 'text' })
   key!: string;
 
-  @Column({ type: 'jsonb' })
-  value!: Record<string, any>;
+  @Column({ type: 'text' })
+  value!: string; 
 
   @Column({ type: 'float', name: 'importance_score', default: 0.5 })
   importanceScore!: number;

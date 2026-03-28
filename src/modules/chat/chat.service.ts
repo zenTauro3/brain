@@ -8,12 +8,14 @@ export class ChatService {
   constructor(private readonly brainService: BrainService) {}
 
   async processChat(userId: string, message: string): Promise<string> {
-    
     const userKnowledge = await this.brainService.getFormattedKnowledge(userId, message);
+    this.logger.log(`User knowledge for user ${userId}:`, userKnowledge);
     const answer = await this.brainService.generateAnswer(message, userKnowledge);
-
-    this.brainService.generateAndSaveKnowledge(userId, message, userKnowledge)
-      .catch((err) => this.logger.error(`Failed to update knowledge for user ${userId}:`, err));
+    this.logger.log(`Generated answer for user ${userId}:`, answer);
+    this.brainService
+      .processAndSaveKnowledge(userId, message, userKnowledge)
+      .then((data) => this.logger.log(`Background knowledge task completed for user ${userId}`, data))
+      .catch((err) => this.logger.error(`Background knowledge task failed for user ${userId}:`, err));
 
     return answer;
   }
