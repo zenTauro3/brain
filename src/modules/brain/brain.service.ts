@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
-import { Memory } from '@modules/brain/entities/memory.entity';
-import { Embedding } from '@modules/brain/entities/embedding.entity';
+import { Memory } from './entities/memory.entity';
+import { Embedding } from './entities/embedding.entity';
 import { NewKnowledgeSchema, NewKnowledgeType } from './schemas/extraction.schema';
 import { ANSWER_SYSTEM_PROMPT, EXTRACTION_SYSTEM_PROMPT } from './brain.constants';
 
@@ -22,7 +22,29 @@ export class BrainService {
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
-  async getUserKnowledge(userId: string, userMessage: string): Promise<string> {
+  // 🌟 EL ÚNICO MÉTODO PÚBLICO: El orquestador principal
+  async processChat(userId: string, message: string): Promise<string> {
+    // 1. Buscar recuerdos
+    const userKnowledge = await this.getUserKnowledge(userId, message);
+    this.logger.log(`User knowledge for user ${userId}:`, userKnowledge);
+
+    // 2. Generar respuesta inmediata para el usuario
+    const answer = await this.generateAnswer(message, userKnowledge);
+    this.logger.log(`Generated answer for user ${userId}:`, answer);
+    
+    // 3. Tarea en segundo plano: Extraer y guardar nuevos recuerdos (FIRE AND FORGET)
+    this.processAndSaveKnowledge(userId, message, userKnowledge)
+      .then((data) => this.logger.log(`Background knowledge task completed for user ${userId}`, data))
+      .catch((err) => this.logger.error(`Background knowledge task failed for user ${userId}:`, err));
+
+    return answer;
+  }
+
+  // -----------------------------------------------------------------
+  // 🔒 MÉTODOS PRIVADOS (Encapsulamiento Senior)
+  // -----------------------------------------------------------------
+
+  private async getUserKnowledge(userId: string, userMessage: string): Promise<string> {
     try {
       const queryVector = await this.createEmbedding(userMessage);
       const vectorStr = `[${queryVector.join(',')}]`;
@@ -47,7 +69,7 @@ export class BrainService {
     }
   }
 
-  async generateAnswer(message: string, userKnowledge: string): Promise<string> {
+  private async generateAnswer(message: string, userKnowledge: string): Promise<string> {
     try {
       const completion = await this.openai.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -64,13 +86,11 @@ export class BrainService {
     }
   }
 
-  async processAndSaveKnowledge(userId: string, message: string, userKnowledge: string): Promise<any[]> {
+  private async processAndSaveKnowledge(userId: string, message: string, userKnowledge: string): Promise<any[]> {
     const extractedMemories = await this.extractKnowledge(message, userKnowledge);
-
     if (extractedMemories.length > 0) {
       await this.persistMemories(userId, extractedMemories);
     }
-
     return extractedMemories;
   }
 
@@ -100,11 +120,9 @@ export class BrainService {
     for (const mem of memories) {
       const textToEmbed = `${mem.key}: ${mem.value}`;
       const vector = await this.createEmbedding(textToEmbed);
-
       let savedMemoryId: string;
 
       if (mem.category === 'EVENT') {
-        // Episodic Memory: Siempre insertar
         const newMemory = await this.memoryRepo.save({
           userId,
           key: mem.key,
@@ -114,7 +132,6 @@ export class BrainService {
         });
         savedMemoryId = newMemory.id;
       } else {
-        // Semantic Memory: Actualizar si existe, insertar si no
         let existingMemory = await this.memoryRepo.findOne({
           where: { userId, key: mem.key },
         });

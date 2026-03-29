@@ -4,9 +4,9 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import * as Joi from 'joi';
 
-import { ChatModule } from './modules/chat/chat.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { BrainModule } from './modules/brain/brain.module';
 import { typeOrmConfig } from './config/database.config';
 
 @Module({
@@ -28,7 +28,7 @@ import { typeOrmConfig } from './config/database.config';
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }]),
     UsersModule,
     AuthModule,
-    ChatModule,
+    BrainModule,
   ],
 })
 export class AppModule {}

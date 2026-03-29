@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
-import { Memory } from '@modules/brain/entities/memory.entity';
-import { Embedding } from '@modules/brain/entities/embedding.entity';
+import { Memory } from '@/modules/brain/entities/memory.entity';
+import { Embedding } from '@/modules/brain/entities/embedding.entity';
 
 @Entity('users')
 export class User {

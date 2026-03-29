@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
-import { User } from '@modules/users/user.entity';
+import { User } from '@/modules/users/user.entity';
 import { Memory } from './memory.entity';
 
 @Entity('embeddings')

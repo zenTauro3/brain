@@ -12,23 +12,21 @@ graph TD
     App[AppModule <br> Root & Config]
     Auth[AuthModule <br> JWT & Security]
     Users[UsersModule <br> Profile Management]
-    Chat[ChatModule <br> AI Endpoint]
-    Brain[BrainModule <br> OpenAI & Vectors]
+    Brain[BrainModule <br> AI, Vectors & Chat Endpoint]
 
     %% Dependencies
     App --> Auth
-    App --> Chat
+    App --> Brain
     App --> Users
     
     Auth --> Users
-    Chat --> Brain
     
     classDef root fill:#f9f,stroke:#333,stroke-width:2px;
     classDef feature fill:#bbf,stroke:#333,stroke-width:2px;
     classDef core fill:#dfd,stroke:#333,stroke-width:2px;
     
     class App root;
-    class Auth,Chat,Users feature;
+    class Auth,Users feature;
     class Brain core;
 \`\`\`
 

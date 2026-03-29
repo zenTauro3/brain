@@ -1,7 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Memory } from '@modules/brain/entities/memory.entity';
-import { User } from '@modules/users/user.entity';
-import { Embedding } from '@modules/brain/entities/embedding.entity';
+import { Memory } from '@/modules/brain/entities/memory.entity';
+import { User } from '@/modules/users/user.entity';
+import { Embedding } from '@/modules/brain/entities/embedding.entity';
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'postgres',
