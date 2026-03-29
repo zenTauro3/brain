@@ -1,6 +1,7 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport'; 
 import { ChatService } from './chat.service';
-import { ChatRequestDto } from './dto/request.dto';
+import { ChatRequestDto } from './chat.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -8,8 +9,15 @@ export class ChatController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  async processMessage(@Body() data: ChatRequestDto) {
-    const answer = await this.chatService.processChat(data.userId, data.message);
+  @UseGuards(AuthGuard('jwt'))
+  async processMessage(
+    @Req() req: any,
+    @Body() data: ChatRequestDto
+  ) {
+    const userId = req.user.id;
+
+    const answer = await this.chatService.processChat(userId, data.message);
+    
     return { answer };
   }
 }

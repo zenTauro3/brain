@@ -22,7 +22,7 @@ export class BrainService {
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
-  async getFormattedKnowledge(userId: string, userMessage: string): Promise<string> {
+  async getUserKnowledge(userId: string, userMessage: string): Promise<string> {
     try {
       const queryVector = await this.createEmbedding(userMessage);
       const vectorStr = `[${queryVector.join(',')}]`;

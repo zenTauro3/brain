@@ -7,14 +7,14 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'text', unique: true, nullable: true })
-  email?: string;
+  @Column({ type: 'text', unique: true })
+  email!: string;
+
+  @Column({ type: 'text' })
+  password!: string;
 
   @Column({ type: 'text', unique: true, nullable: true })
   username?: string;
-
-  @Column({ type: 'text', nullable: true })
-  name?: string;
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;

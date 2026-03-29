@@ -1,17 +1,38 @@
-### Prueba 1: Jaume (Nuevo deporte y viaje)
-POST http://localhost:3000/chat
+### Register
+POST http://localhost:3000/auth/register
 Content-Type: application/json
 
 {
-  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "email": "jaumeizqbroch@gmail.com",
+  "password": "SapitoBonito123",
+  "username": "filipsh20"
+}
+
+### Login 
+# @name loginRequest
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "jaumeizqbroch@gmail.com",
+  "password": "SapitoBonito123"
+}
+
+### Chat 1
+POST http://localhost:3000/chat
+Content-Type: application/json
+# Usamos el token directamente de la respuesta del loginRequest:
+Authorization: Bearer {{loginRequest.response.body.data.access_token}}
+
+{
   "message": "Hello. My name is Jaume, I'm 19 years old, and I love go running. I recently went on a trip to portaventura with my friends and it was amazing!"
 }
 
-### Prueba 2: Jaume (Cambio de deporte)
+### Chat 2
 POST http://localhost:3000/chat
 Content-Type: application/json
+Authorization: Bearer {{loginRequest.response.body.data.access_token}}
 
 {
-  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
   "message": "I just get tired of running, so I decided to start swimming instead."
 }

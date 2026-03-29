@@ -15,9 +15,9 @@ CREATE EXTENSION IF NOT EXISTS "vector";
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email TEXT UNIQUE,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
     username TEXT UNIQUE,
-    name TEXT,
     created_at TIMESTAMPTZ DEFAULT now(),
     last_seen_at TIMESTAMPTZ
 );
@@ -43,7 +43,6 @@ CREATE TABLE embeddings (
 
 CREATE INDEX idx_embeddings_user_id ON embeddings(user_id);
 CREATE INDEX idx_users_username_trgm ON users USING GIN (username gin_trgm_ops);
-CREATE INDEX idx_users_name_trgm ON users USING GIN (name gin_trgm_ops);
 CREATE INDEX idx_memories_key_trgm ON memories USING GIN (key gin_trgm_ops);
 CREATE INDEX idx_embeddings_vector ON embeddings USING hnsw (vector vector_cosine_ops);
 
