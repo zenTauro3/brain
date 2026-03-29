@@ -5,12 +5,16 @@
   "main": "dist/main.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node dist/main.js",
-    "start:dev": "nest start --watch",
     "build": "nest build",
-    "lint": "eslint 'src/**/*.ts' --fix",
-    "format": "prettier --write 'src/**/*.ts'",
-    "prepare": "husky install"
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    
+    "docker:up": "sudo docker compose up --build -d",
+    "docker:down": "sudo docker compose down",
+    "docker:logs": "sudo docker compose logs -f api"
   },
   "keywords": [
     "node",
@@ -28,6 +32,7 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.11",
+    "@nestjs/throttler": "^6.5.0",
     "@nestjs/typeorm": "^11.0.0",
     "@types/pg": "^8.16.0",
     "bcrypt": "^6.0.0",
@@ -35,6 +40,7 @@
     "class-validator": "^0.14.3",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "joi": "^18.1.1",
     "multer": "^2.0.2",
     "openai": "^6.16.0",
     "passport": "^0.7.0",

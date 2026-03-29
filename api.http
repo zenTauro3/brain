@@ -18,10 +18,13 @@ Content-Type: application/json
   "password": "SapitoBonito123"
 }
 
+### Profile
+GET http://localhost:3000/users/me
+Authorization: Bearer {{loginRequest.response.body.data.access_token}}
+
 ### Chat 1
 POST http://localhost:3000/chat
 Content-Type: application/json
-# Usamos el token directamente de la respuesta del loginRequest:
 Authorization: Bearer {{loginRequest.response.body.data.access_token}}
 
 {

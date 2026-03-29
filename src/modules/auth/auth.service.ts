@@ -44,7 +44,7 @@ export class AuthService {
   async refresh(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET || 'refresh-secret-super-seguro',
+        secret: process.env.JWT_REFRESH_SECRET || 'refresh-secret-password',
       });
 
       return this.generateTokens(payload.sub, payload.email);
@@ -58,11 +58,11 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload, {
-        secret: process.env.JWT_SECRET || 'access-secret-super-seguro',
+        secret: process.env.JWT_SECRET || 'secret-password',
         expiresIn: '1h',
       }),
       refresh_token: this.jwtService.sign(payload, {
-        secret: process.env.JWT_REFRESH_SECRET || 'refresh-secret-super-seguro',
+        secret: process.env.JWT_REFRESH_SECRET || 'refresh-secret-password',
         expiresIn: '7d',
       }),
     };

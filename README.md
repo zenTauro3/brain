@@ -1,53 +1,62 @@
-# Database
+# 🧠 Second Brain AI - Backend
 
-sudo -u postgres psql
-psql -h localhost -p 5432 -U jaume -d brain
+A RESTful API built with **NestJS**, **PostgreSQL (pgvector)**, and **OpenAI** to power a conversational assistant with long-term episodic memory (Retrieval-Augmented Generation / RAG).
 
-ALTER USER postgres WITH PASSWORD '1234';
+## 🏗️ Architecture & Modules
 
-TRUNCATE TABLE memories CASCADE;
+The dependency flow follows a strict Clean Architecture pattern to avoid circular dependencies:
 
-----
+\`\`\`mermaid
+graph TD
+    %% Module Definitions
+    App[AppModule <br> Root & Config]
+    Auth[AuthModule <br> JWT & Security]
+    Users[UsersModule <br> Profile Management]
+    Chat[ChatModule <br> AI Endpoint]
+    Brain[BrainModule <br> OpenAI & Vectors]
 
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";  
-CREATE EXTENSION IF NOT EXISTS "vector"; 
+    %% Dependencies
+    App --> Auth
+    App --> Chat
+    App --> Users
+    
+    Auth --> Users
+    Chat --> Brain
+    
+    classDef root fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef feature fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef core fill:#dfd,stroke:#333,stroke-width:2px;
+    
+    class App root;
+    class Auth,Chat,Users feature;
+    class Brain core;
+\`\`\`
 
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    username TEXT UNIQUE,
-    created_at TIMESTAMPTZ DEFAULT now(),
-    last_seen_at TIMESTAMPTZ
-);
+## 🚀 Core Endpoints
 
-CREATE TABLE memories (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    category TEXT CHECK (category IN ('PREFERENCE', 'FACT', 'GOAL', 'RELATIONSHIP', 'EVENT', 'OTHER')),
-    key TEXT NOT NULL, 
-    value TEXT NOT NULL, 
-    importance_score FLOAT CHECK (importance_score >= 0 AND importance_score <= 1) DEFAULT 0.5,
-    created_at TIMESTAMPTZ DEFAULT now(),
-    updated_at TIMESTAMPTZ DEFAULT now()
-);
+- **`POST /auth/register`**: Registers a new user (Email, Password, Username).
+- **`POST /auth/login`**: Authenticates a user and returns an `access_token` (1h) and a `refresh_token` (7d).
+- **`POST /auth/refresh`**: Renews the current session using a valid `refresh_token`.
+- **`GET /users/me`**: Retrieves the logged-in user's profile data (Requires `access_token`).
+- **`POST /chat`**: Processes a message with the AI and updates the vector memory (Requires `access_token`, Rate Limited to 10 req/min).
 
-CREATE TABLE embeddings (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    memory_id UUID UNIQUE REFERENCES memories(id) ON DELETE CASCADE,
-    vector VECTOR(1536), -- Ajustado para text-embedding-3-small de OpenAI
-    created_at TIMESTAMPTZ DEFAULT now()
-);
+## 🛠️ Infrastructure & Setup (Docker)
 
-CREATE INDEX idx_embeddings_user_id ON embeddings(user_id);
-CREATE INDEX idx_users_username_trgm ON users USING GIN (username gin_trgm_ops);
-CREATE INDEX idx_memories_key_trgm ON memories USING GIN (key gin_trgm_ops);
-CREATE INDEX idx_embeddings_vector ON embeddings USING hnsw (vector vector_cosine_ops);
+The database schema, including `pgvector` extensions and indexing, is automatically initialized via the `init.sql` file when starting the Docker containers for the first time.
 
-----
+### Quick Start Commands
 
-INSERT INTO users (id, username, name, email) 
-VALUES 
-  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'filipsh20', 'Jaume', 'jaumeizqbroch@gmail.com');
+The project is fully containerized to ensure the API and the Database run smoothly in any environment. 
+
+- **Start the infrastructure (API + DB in background):**
+  \`\`\`bash
+  npm run docker:up
+  \`\`\`
+- **View API logs in real-time:**
+  \`\`\`bash
+  npm run docker:logs
+  \`\`\`
+- **Stop and tear down the infrastructure:**
+  \`\`\`bash
+  npm run docker:down
+  \`\`\`
