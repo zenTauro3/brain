@@ -1,8 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
+import { ConfigType } from '@nestjs/config';
+import { envConfig } from '@/config/env.config';
 import { Memory } from './entities/memory.entity';
 import { Embedding } from './entities/embedding.entity';
 import { NewKnowledgeSchema, NewKnowledgeType } from './schemas/extraction.schema';
@@ -18,31 +20,26 @@ export class BrainService {
     private readonly memoryRepo: Repository<Memory>,
     @InjectRepository(Embedding)
     private readonly embeddingRepo: Repository<Embedding>,
+
+    @Inject(envConfig.KEY)
+    private config: ConfigType<typeof envConfig>,
   ) {
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    this.openai = new OpenAI({ apiKey: this.config.ai.openaiKey });
   }
 
-  // 🌟 EL ÚNICO MÉTODO PÚBLICO: El orquestador principal
   async processChat(userId: string, message: string): Promise<string> {
-    // 1. Buscar recuerdos
     const userKnowledge = await this.getUserKnowledge(userId, message);
     this.logger.log(`User knowledge for user ${userId}:`, userKnowledge);
 
-    // 2. Generar respuesta inmediata para el usuario
     const answer = await this.generateAnswer(message, userKnowledge);
     this.logger.log(`Generated answer for user ${userId}:`, answer);
-    
-    // 3. Tarea en segundo plano: Extraer y guardar nuevos recuerdos (FIRE AND FORGET)
+
     this.processAndSaveKnowledge(userId, message, userKnowledge)
       .then((data) => this.logger.log(`Background knowledge task completed for user ${userId}`, data))
       .catch((err) => this.logger.error(`Background knowledge task failed for user ${userId}:`, err));
 
     return answer;
   }
-
-  // -----------------------------------------------------------------
-  // 🔒 MÉTODOS PRIVADOS (Encapsulamiento Senior)
-  // -----------------------------------------------------------------
 
   private async getUserKnowledge(userId: string, userMessage: string): Promise<string> {
     try {

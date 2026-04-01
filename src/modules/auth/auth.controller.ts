@@ -17,7 +17,7 @@ export class AuthController {
       example: {
         success: true,
         statusCode: 201,
-        data: { id: 1, email: 'jaume@ejemplo.com', username: 'Jaume' }
+        data: { id: "uuid-123", email: 'jaume@ejemplo.com', username: 'Jaume' }
       }
     }
   })
@@ -42,7 +42,6 @@ export class AuthController {
       }
     }
   })
-  @SwaggerResponse({ status: 401, description: 'Credenciales inválidas.' })
   async login(@Body() body: LoginDto) {
     return this.authService.login(body.email, body.password);
   }
