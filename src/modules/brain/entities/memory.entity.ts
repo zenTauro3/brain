@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { User } from '@/modules/users/user.entity'; 
+import { User } from '@/modules/users/entities/user.entity'; 
 import { Embedding } from './embedding.entity';
 
 export enum MemoryCategory {

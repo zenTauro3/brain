@@ -3,10 +3,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class BrainRequestDto {
   @ApiProperty({ 
-    example: '¿Cuál es el sentido de la vida?', 
-    description: 'El mensaje que el usuario envía a la IA' 
+    example: 'What is the meaning of life?', 
+    description: 'The message the user sends to the AI' 
   })
   @IsString()
-  @IsNotEmpty({ message: 'No puedes enviar un mensaje vacío' })
+  @IsNotEmpty({ message: 'The message cannot be empty' })
   message!: string;
 }

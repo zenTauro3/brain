@@ -5,12 +5,19 @@ import { ConfigType } from '@nestjs/config';
 import { envConfig } from '@/config/env.config';
 import { UsersService } from '@/modules/users/users.service';
 
+interface JwtPayload {
+  sub: string;
+  email: string;
+  iat?: number;
+  exp?: number;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly usersService: UsersService,
     @Inject(envConfig.KEY)
-    private config: ConfigType<typeof envConfig>,
+    private readonly config: ConfigType<typeof envConfig>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -19,11 +26,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload) {
     const user = await this.usersService.findById(payload.sub);
+    
     if (!user) {
-      throw new UnauthorizedException('El usuario del token ya no existe');
+      throw new UnauthorizedException('User associated with this token no longer exists');
     }
-    return { id: user.id, email: user.email };
+    
+    return { 
+      id: user.id, 
+      email: user.email 
+    };
   }
 }

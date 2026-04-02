@@ -32,9 +32,7 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  console.log('-------------------------------------------------------');
   console.log(`🚀 AXON API: http://localhost:${port}/api`);
   console.log(`📚 SWAGGER: http://localhost:${port}/docs`);
-  console.log('-------------------------------------------------------');
 }
 bootstrap();

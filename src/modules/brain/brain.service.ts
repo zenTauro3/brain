@@ -57,12 +57,12 @@ export class BrainService {
         [userId, vectorStr],
       );
 
-      if (!memories?.length) return 'No hay información previa relevante.';
+      if (!memories?.length) return 'No relevant prior information found.';
 
       return memories.map((m: any) => `[${m.category}] ${m.key}: ${JSON.stringify(m.value)}`).join('\n');
     } catch (err) {
       this.logger.error('Error fetching semantic knowledge', err);
-      return 'Error al recuperar conocimientos.';
+      return 'Error retrieving knowledge.';
     }
   }
 
@@ -79,7 +79,7 @@ export class BrainService {
       return completion.choices[0].message?.content ?? '';
     } catch (err) {
       this.logger.error('Error generating answer', err);
-      return 'Lo siento, tuve un problema al procesar tu mensaje.';
+      return 'I am sorry, I encountered an issue while processing your message.';
     }
   }
 

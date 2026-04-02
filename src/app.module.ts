@@ -8,7 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { BrainModule } from './modules/brain/brain.module';
 
-import { User } from './modules/users/user.entity';
+import { User } from './modules/users/entities/user.entity';
 import { Memory } from './modules/brain/entities/memory.entity';
 import { Embedding } from './modules/brain/entities/embedding.entity';
 

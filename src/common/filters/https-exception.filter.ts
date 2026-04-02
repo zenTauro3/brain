@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiResponse } from '../dto/api-response.dto';
+import { ApiErrorResponse } from '../dto/api-response.dto';
 
 @Catch()
 export class GlobalHttpExceptionFilter implements ExceptionFilter {
@@ -22,10 +22,10 @@ export class GlobalHttpExceptionFilter implements ExceptionFilter {
         ? exceptionResponse.message.join(', ')
         : exceptionResponse?.message || exception.message;
 
-      code = HttpStatus[statusCode];
+      code = HttpStatus[statusCode] ?? 'UNKNOWN_ERROR';
     }
 
-    const body: ApiResponse<null> = {
+    const body: ApiErrorResponse = {
       success: false,
       statusCode,
       error: {

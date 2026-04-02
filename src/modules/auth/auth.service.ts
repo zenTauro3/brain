@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, ConflictException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
@@ -7,33 +7,49 @@ import { envConfig } from '@/config/env.config';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     @Inject(envConfig.KEY)
-    private config: ConfigType<typeof envConfig>,
+    private readonly config: ConfigType<typeof envConfig>,
   ) {}
 
-  async register(email: string, passwordPlain: string, username?: string) {
+  async register(email: string, passwordPlain: string, username: string) {
     const existingUser = await this.usersService.findByEmail(email);
-    if (existingUser) throw new ConflictException('El email ya está en uso');
+    if (existingUser) {
+      throw new ConflictException('Email already in use');
+    }
 
     const hashedPassword = await bcrypt.hash(passwordPlain, 10);
+    
     const newUser = await this.usersService.create({
       email,
       password: hashedPassword,
       username,
     });
 
-    return this.generateTokens(newUser.id, newUser.email);
+    this.logger.log(`New user registered: ${email}`);
+
+    return {
+      id: newUser.id,
+      email: newUser.email,
+      username: newUser.username,
+    };
   }
 
   async login(email: string, passwordPlain: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException('Credenciales incorrectas');
+    
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const isPasswordValid = await bcrypt.compare(passwordPlain, user.password);
-    if (!isPasswordValid) throw new UnauthorizedException('Credenciales incorrectas');
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     return this.generateTokens(user.id, user.email);
   }
@@ -45,8 +61,9 @@ export class AuthService {
       });
 
       return this.generateTokens(payload.sub, payload.email);
-    } catch (e) {
-      throw new UnauthorizedException('Refresh token inválido o caducado');
+    } catch (error: any) {
+      this.logger.error(`Token refresh failed: ${error.message}`);
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
 
