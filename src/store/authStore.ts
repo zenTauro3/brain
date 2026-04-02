@@ -1,31 +1,49 @@
 import { create } from "zustand";
-import { AuthResponse } from "../types/auth";
+import { authService } from "../api/services/auth.service";
+import { LoginRequest, RegisterRequest } from "@/types/auth";
+import { UserData } from "@/types/user";
+import { router } from "expo-router";
 
 interface AuthState {
-  user: AuthResponse["user"] | null;
-  token: string | null;
+  user: UserData | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
 
-  login: (data: AuthResponse) => void;
-  logout: () => void;
+  login: (credentials: LoginRequest) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<void>;
+  logout: () => Promise<void>;
+  initialize: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: null,
   isAuthenticated: false,
+  isLoading: true, 
 
-  login: (data) =>
-    set({
-      user: data.user,
-      token: data.access_token,
-      isAuthenticated: true,
-    }),
+  initialize: async () => {
+    try {
+      const isAuth = await authService.isAuthenticated();
+      set({ isAuthenticated: isAuth, isLoading: false });
+    } catch {
+      set({ isAuthenticated: false, isLoading: false });
+    }
+  },
 
-  logout: () =>
-    set({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-    }),
+  login: async (credentials) => {
+    const response = await authService.login(credentials);
+    set({ isAuthenticated: true, user: null }); 
+    router.replace("/(tabs)");
+  },
+
+  register: async (data) => {
+    await authService.register(data);
+    set({ isAuthenticated: true });
+    router.replace("/(tabs)");
+  },
+
+  logout: async () => {
+    await authService.logout();
+    set({ isAuthenticated: false, user: null });
+    router.replace("/login");
+  },
 }));
