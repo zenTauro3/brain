@@ -1,10 +1,10 @@
 {
   "expo": {
     "name": "Axon",
-    "slug": "client",
+    "slug": "axon-client",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/brain.png", 
+    "icon": "./assets/images/brain.png",
     "scheme": "axon",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
@@ -21,7 +21,10 @@
         "foregroundImage": "./assets/images/brain.png",
         "backgroundColor": "#000000"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "INTERNET"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -29,12 +32,20 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/brain.png",
-          "imageWidth": 200,
+          "imageWidth": 180,
           "resizeMode": "contain",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#000000",
+          "dark": {
+            "image": "./assets/images/brain.png",
+            "backgroundColor": "#000000"
+          }
         }
       ]
     ],
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/images/brain.png"
+    },
     "extra": {
       "eas": {
         "projectId": "43a7bb0c-9b43-464b-81d1-1c92097d8fa3"
