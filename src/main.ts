@@ -30,9 +30,12 @@ async function bootstrap() {
 
   const port = configService.get<number>('config.port')!;
 
-  await app.listen(port);
-
-  console.log(`🚀 AXON API: http://localhost:${port}/api`);
-  console.log(`📚 SWAGGER: http://localhost:${port}/docs`);
+  try {
+    await app.listen(port);
+    logger.log(`🚀 AXON API: http://localhost:${port}/api`);
+    logger.log(`📚 SWAGGER: http://localhost:${port}/docs`);
+  } catch (error: any) {
+    logger.error(`❌ Error starting server: ${error.message}`);
+  }
 }
 bootstrap();
