@@ -5,9 +5,9 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/store/authStore";
@@ -24,15 +24,13 @@ export default function Login() {
     if (!form.email || !form.password)
       return setError("Please fill all fields");
 
-    console.log()
-
     setLoading(true);
     setError(null);
     
     try {
       await login(form);
     } catch (err: any) {
-      setError(err.error?.message || "Invalid credentials");
+      setError(err.message || "Invalid credentials");
     } finally {
       setLoading(false);
     }
@@ -40,7 +38,7 @@ export default function Login() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => router.push('/(auth)')} style={styles.back}>
+      <TouchableOpacity onPress={() => router.push('(auth)')} style={styles.back}>
         <Ionicons name="arrow-back" size={28} color="white" />
       </TouchableOpacity>
 
@@ -92,8 +90,8 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000", padding: 25 },
-  back: { marginTop: 20, marginBottom: 30 },
+  container: { flex: 1, backgroundColor: "#000", paddingHorizontal: 25 },
+  back: { marginTop: 10, marginBottom: 20 },
   header: { marginBottom: 40 },
   title: { color: "#fff", fontSize: 36, fontWeight: "bold" },
   subtitle: { color: "#555", fontSize: 18, marginTop: 10 },
