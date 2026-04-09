@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '@/app.module';
 
-// ✨ Añadimos tu interceptor para que las respuestas salgan con { data: ... }
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 
 describe('Flujo Completo de la API (e2e)', () => {

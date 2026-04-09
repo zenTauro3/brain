@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { GlobalHttpExceptionFilter } from './common/filters/https-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { corsConfig } from './config/cors.config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -12,7 +13,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
-  app.enableCors();
+  app.enableCors(corsConfig);
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalInterceptors(new ResponseInterceptor());
@@ -32,8 +33,8 @@ async function bootstrap() {
 
   try {
     await app.listen(port);
-    logger.log(`🚀 AXON API: http://localhost:${port}/api`);
-    logger.log(`📚 SWAGGER: http://localhost:${port}/docs`);
+    logger.log(`🚀 AXON API: http://192.168.1.137:${port}/api`);
+    logger.log(`📚 SWAGGER: http://192.168.1.137:${port}/docs`);
   } catch (error: any) {
     logger.error(`❌ Error starting server: ${error.message}`);
   }
