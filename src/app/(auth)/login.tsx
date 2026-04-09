@@ -24,6 +24,8 @@ export default function Login() {
     if (!form.email || !form.password)
       return setError("Please fill all fields");
 
+    console.log()
+
     setLoading(true);
     setError(null);
     

@@ -2,14 +2,14 @@
   "name": "client",
   "main": "expo-router/entry",
   "version": "1.0.0",
-"scripts": {
-  "start": "expo start --dev-client",
-  "android": "npx expo run:android",
-  "ios": "npx expo run:ios",
-  "build:android": "npx expo run:android --variant release",
-  "clean": "npx expo install --check && npx expo start -c",
-  "lint": "expo lint"
-},
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "npx expo run:android",
+    "ios": "npx expo run:ios",
+    "build:android": "npx expo run:android --variant release",
+    "clean": "npx expo install --check && npx expo start -c",
+    "lint": "expo lint"
+  },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -25,6 +25,7 @@
     "expo-image": "~3.0.11",
     "expo-linking": "~8.0.11",
     "expo-router": "~6.0.23",
+    "expo-secure-store": "~15.0.8",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
     "expo-symbols": "~1.0.8",

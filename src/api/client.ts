@@ -3,25 +3,25 @@ import axios, {
   InternalAxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const API_URL = process.env.API_URL;
+import * as SecureStore from "expo-secure-store";
+import { config } from "@/config/env.config";
 
 export const apiClient = axios.create({
-  baseURL: API_URL,
+  baseURL: config.api.baseUrl,
+  timeout: config.api.timeout,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000,
 });
 
 apiClient.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    const token = await AsyncStorage.getItem("auth_token");
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+  async (axiosConfig: InternalAxiosRequestConfig) => {
+    const token = await SecureStore.getItemAsync(config.auth.tokenKey);
+    
+    if (token && axiosConfig.headers) {
+      axiosConfig.headers.Authorization = `Bearer ${token}`;
     }
-    return config;
+    return axiosConfig;
   },
   (error) => Promise.reject(error),
 );
@@ -32,8 +32,16 @@ apiClient.interceptors.response.use(
   },
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      await AsyncStorage.removeItem("auth_token");
+      await Promise.all([
+        SecureStore.deleteItemAsync(config.auth.tokenKey),
+        SecureStore.deleteItemAsync(config.auth.refreshTokenKey),
+      ]);
+      
+      // NOTA SENIOR: En un futuro, aquí es donde deberías interceptar el 401,
+      // leer el refresh_token, pedir un nuevo access_token a /auth/refresh,
+      // guardarlo, y reintentar la petición original sin que el usuario lo note.
     }
+    
     return Promise.reject(error.response?.data || error);
   },
 );
