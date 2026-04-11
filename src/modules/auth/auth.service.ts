@@ -4,6 +4,7 @@ import { ConfigType } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '@/modules/users/users.service';
 import { envConfig } from '@/config/env.config';
+import { User } from '@/modules/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -32,11 +33,7 @@ export class AuthService {
 
     this.logger.log(`New user registered: ${email}`);
 
-    return {
-      id: newUser.id,
-      email: newUser.email,
-      username: newUser.username,
-    };
+    return this.generateAuthResponse(newUser);
   }
 
   async login(email: string, passwordPlain: string) {
@@ -51,7 +48,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateTokens(user.id, user.email);
+    return this.generateAuthResponse(user);
   }
 
   async refresh(refreshToken: string) {
@@ -60,11 +57,31 @@ export class AuthService {
         secret: this.config.jwt.refreshSecret,
       });
 
-      return this.generateTokens(payload.sub, payload.email);
+      const tokens = this.generateTokens(payload.sub, payload.email);
+
+      return {
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+      };
+
     } catch (error: any) {
       this.logger.error(`Token refresh failed: ${error.message}`);
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
+  }
+
+  private generateAuthResponse(user: User) {
+    const tokens = this.generateTokens(user.id, user.email);
+
+    return {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      }
+    };
   }
 
   private generateTokens(userId: string, email: string) {

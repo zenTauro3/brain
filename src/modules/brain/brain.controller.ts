@@ -3,7 +3,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { BrainService } from './brain.service';
-import { ChatRequestDto } from './dto/chat.dto';
+
+// ✨ Importaciones separadas
+import { ChatRequestDto } from './dto/chat-request.dto';
+import { ChatResponseDto } from './dto/chat-response.dto';
 import { ApiStandardResponse, ApiStandardErrorResponse } from '@/common/decorators/api-response.decorator';
 
 @ApiTags('Chat')
@@ -16,7 +19,7 @@ export class BrainController {
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send a message to the AI and get a response' })
-  @ApiStandardResponse(200, 'AI response generated successfully', 'The AI answer is 42.')
+  @ApiStandardResponse(200, 'AI response generated successfully', ChatResponseDto)
   @ApiStandardErrorResponse(400, 'Invalid data', 'BAD_REQUEST', 'The message field is required')
   @ApiStandardErrorResponse(401, 'Unauthorized', 'UNAUTHORIZED', 'Missing or expired JWT token')
   @ApiStandardErrorResponse(
@@ -26,8 +29,10 @@ export class BrainController {
     'You have exceeded the messages per minute limit',
   )
   async processMessage(@Req() req: any, @Body() data: ChatRequestDto) {
-    const userId = req.user.id;
+    const userId = req.user.sub || req.user.id;
+
     const answer = await this.brainService.processChat(userId, data.message);
-    return answer;
+
+    return { answer };
   }
 }
