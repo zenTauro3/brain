@@ -1,14 +1,5 @@
-import { Redirect } from "expo-router";
-import { useAuthStore } from "@/store/authStore";
+import { View } from "react-native";
 
 export default function RootIndex() {
-  const { isAuthenticated, isLoading } = useAuthStore();
-
-  if (isLoading) return null;
-
-  return isAuthenticated ? (
-    <Redirect href="/(chat)" />
-  ) : (
-    <Redirect href="/(auth)" />
-  );
+  return <View />;
 }

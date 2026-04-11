@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { router } from "expo-router";
 import { authService } from "../api/services/auth.service";
 import { tokenService } from "../api/services/token.service";
 import { LoginRequest, RegisterRequest } from "@/types/auth";
@@ -54,7 +53,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: response.user,
       });
 
-      router.replace("/(chat)");
     } catch (error) {
       throw error;
     }
@@ -70,7 +68,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: response.user,
       });
 
-      router.replace("/(chat)");
     } catch (error) {
       throw error;
     }
@@ -81,8 +78,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await tokenService.clearTokens();
 
       set({ isAuthenticated: false, user: null });
-
-      router.replace("/");
     } catch (error) {
       console.error("Error during logout:", error);
     }

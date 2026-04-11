@@ -61,7 +61,7 @@ export default function Register() {
 
           <View style={styles.form}>
             <TextInput
-              placeholder="Full Name"
+              placeholder="Username"
               placeholderTextColor="#444"
               style={styles.input}
               onChangeText={(t) => setForm({ ...form, username: t })}
