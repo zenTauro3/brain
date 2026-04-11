@@ -7,6 +7,22 @@ import { GlobalHttpExceptionFilter } from './common/filters/https-exception.filt
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { corsConfig } from './config/cors.config';
 
+import * as os from 'os';
+
+function getNetworkIP(): string {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name] || []) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        if (iface.address.startsWith('192.168') || iface.address.startsWith('10.')) {
+          return iface.address;
+        }
+      }
+    }
+  }
+  return '127.0.0.1';
+}
+
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
@@ -29,12 +45,15 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const port = configService.get<number>('config.port')!;
+  const port = configService.get<number>('config.port') || 3000;
+  
+  const localIp = getNetworkIP();
 
   try {
-    await app.listen(port);
-    logger.log(`🚀 AXON API: http://192.168.1.137:${port}/api`);
-    logger.log(`📚 SWAGGER: http://192.168.1.137:${port}/docs`);
+    await app.listen(port, '0.0.0.0');
+    
+    logger.log(`🚀 AXON API: http://${localIp}:${port}/api`);
+    logger.log(`📚 SWAGGER: http://${localIp}:${port}/docs`);
   } catch (error: any) {
     logger.error(`❌ Error starting server: ${error.message}`);
   }

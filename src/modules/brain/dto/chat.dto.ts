@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class BrainRequestDto {
+export class ChatRequestDto {
   @ApiProperty({ 
     example: 'What is the meaning of life?', 
     description: 'The message the user sends to the AI' 
