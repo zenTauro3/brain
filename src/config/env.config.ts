@@ -4,7 +4,7 @@ export const config = {
     timeout: 15000,
   },
   auth: {
-    tokenKey: "auth_token",
+    accessTokenKey: "auth_token",
     refreshTokenKey: "refresh_token",
   },
   environment: process.env.NODE_ENV || "development",

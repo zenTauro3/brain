@@ -1,22 +1,21 @@
-import { Redirect, Stack } from "expo-router";
+import { useEffect } from "react";
+import { useRouter, Stack } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
-import { ActivityIndicator, View } from "react-native";
 
-export default function PrivateLayout() {
+export default function ChatLayout() {
   const { isAuthenticated, isLoading } = useAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.replace("/");
+      }
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
-    return (
-      <View
-        style={{ flex: 1, backgroundColor: "#000", justifyContent: "center" }}
-      >
-        <ActivityIndicator color="#007AFF" />
-      </View>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Redirect href="/" />;
+    return null;
   }
 
   return <Stack screenOptions={{ headerShown: false }} />;

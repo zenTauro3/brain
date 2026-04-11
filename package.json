@@ -4,9 +4,10 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start --dev-client",
-    "android": "npx expo run:android",
-    "ios": "npx expo run:ios",
+    "dev:android": "npx expo run:android",
+    "dev:ios": "npx expo run:ios",
     "build:android": "npx expo run:android --variant release",
+    "build:ios": "npx expo run:ios --configuration Release",
     "clean": "npx expo install --check && npx expo start -c",
     "lint": "expo lint"
   },

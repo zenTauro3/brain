@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-// Importación correcta para evitar el warning de 'deprecated'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Redirect } from "expo-router";
 import { useAuthStore } from "@/store/authStore";

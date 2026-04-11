@@ -17,7 +17,7 @@ import { useAuthStore } from "@/store/authStore";
 
 export default function Register() {
   const router = useRouter();
-  const register = useAuthStore((state) => state.register);
+  const { register } = useAuthStore();
 
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -42,12 +42,15 @@ export default function Register() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <ScrollView showsVerticalScrollIndicator={false}>
-          <TouchableOpacity onPress={() =>  router.push('(auth)')} style={styles.back}>
+          <TouchableOpacity
+            onPress={() => router.push("(auth)")}
+            style={styles.back}
+          >
             <Ionicons name="arrow-back" size={28} color="white" />
           </TouchableOpacity>
 
@@ -131,11 +134,11 @@ const styles = StyleSheet.create({
   },
   btnText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
   errorText: { color: "#FF453A", textAlign: "center", marginTop: 10 },
-  footer: { 
-    flexDirection: "row", 
-    justifyContent: "center", 
+  footer: {
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 30,
-    marginBottom: 20 
+    marginBottom: 20,
   },
   footerText: { color: "#555", fontSize: 16 },
   linkText: { color: "#007AFF", fontSize: 16, fontWeight: "bold" },

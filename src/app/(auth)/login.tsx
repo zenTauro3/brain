@@ -14,7 +14,7 @@ import { useAuthStore } from "@/store/authStore";
 
 export default function Login() {
   const router = useRouter();
-  const login = useAuthStore((state) => state.login);
+  const { login } = useAuthStore();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function Login() {
 
     setLoading(true);
     setError(null);
-    
+
     try {
       await login(form);
     } catch (err: any) {
@@ -38,7 +38,10 @@ export default function Login() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => router.push('(auth)')} style={styles.back}>
+      <TouchableOpacity
+        onPress={() => router.push("(auth)")}
+        style={styles.back}
+      >
         <Ionicons name="arrow-back" size={28} color="white" />
       </TouchableOpacity>
 
