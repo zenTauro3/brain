@@ -2,16 +2,27 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router"; // ✨ Importamos el router
 
 import { useAuthStore } from "@/store/authStore";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
+  const router = useRouter(); // ✨ Lo inicializamos
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* ✨ Custom Header del Perfil con botón de volver */}
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="chevron-back" size={28} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
+        <View style={{ width: 28 }} />{" "}
+        {/* Espaciador fantasma para centrar el título */}
       </View>
 
       <View style={styles.userCard}>
@@ -26,23 +37,9 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <View style={styles.optionsContainer}>
-        <TouchableOpacity style={styles.optionBtn}>
-          <Ionicons name="settings-outline" size={24} color="#fff" />
-          <Text style={styles.optionText}>Account Settings</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.optionBtn}>
-          <Ionicons name="notifications-outline" size={24} color="#fff" />
-          <Text style={styles.optionText}>Notifications</Text>
-        </TouchableOpacity>
-      </View>
-
       <View style={{ flex: 1 }} />
 
-      <TouchableOpacity
-        style={styles.logoutBtn}
-        onPress={logout}
-      >
+      <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
         <Ionicons name="log-out-outline" size={24} color="#FF453A" />
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
@@ -56,15 +53,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     paddingHorizontal: 20,
   },
+  // ✨ Estilos del nuevo Header
   header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between", // Centra el texto y empuja los iconos a los lados
     marginTop: 10,
     marginBottom: 30,
   },
+  backButton: {
+    padding: 5,
+    marginLeft: -5, // Compensa visualmente el margen
+  },
   headerTitle: {
     color: "#fff",
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "bold",
   },
+  // ... (El resto de tus estilos se quedan exactamente igual) ...
   userCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -73,7 +79,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#1A1A1A",
-    marginBottom: 30,
   },
   avatarPlaceholder: {
     width: 70,
@@ -84,48 +89,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 15,
   },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "bold",
-  },
-  userEmail: {
-    color: "#888",
-    fontSize: 14,
-    marginTop: 4,
-  },
-  optionsContainer: {
-    gap: 15,
-  },
-  optionBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#0D0D0D",
-    padding: 18,
-    borderRadius: 12,
-  },
-  optionText: {
-    color: "#fff",
-    fontSize: 16,
-    marginLeft: 15,
-    fontWeight: "500",
-  },
+  userInfo: { flex: 1 },
+  userName: { color: "#fff", fontSize: 22, fontWeight: "bold" },
+  userEmail: { color: "#888", fontSize: 14, marginTop: 4 },
   logoutBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255, 69, 58, 0.1)", // Un rojo transparente muy sutil
+    backgroundColor: "rgba(255, 69, 58, 0.1)",
     padding: 18,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 69, 58, 0.3)",
-    marginBottom: 20, // SafeAreaView se encarga del margen real del dispositivo
+    marginBottom: 20,
   },
   logoutText: {
-    color: "#FF453A", // Rojo destructivo estándar de iOS
+    color: "#FF453A",
     fontSize: 18,
     fontWeight: "bold",
     marginLeft: 10,

@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Redirect } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
 
-export default function WelcomeScreen() {
+export default function AuthScreen() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuthStore();
 
@@ -25,14 +25,14 @@ export default function WelcomeScreen() {
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.btnBlue}
-          onPress={() => router.push("/login")}
+          onPress={() => router.push("(auth)/login")}
         >
           <Text style={styles.btnText}>Log In</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
           style={styles.btnOutline}
-          onPress={() => router.push("/register")}
+          onPress={() => router.push("(auth)/register")}
         >
           <Text style={styles.btnText}>Sign Up</Text>
         </TouchableOpacity>

@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
 
-export default function ChatLayout() {
+export default function AppLayout() {
   return <Stack screenOptions={{ headerShown: false }} />;
 }
