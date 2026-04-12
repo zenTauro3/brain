@@ -8,7 +8,7 @@ import {
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class RegisterDto {
+export class RegisterRequestDto {
   @ApiProperty({ 
     example: 'jaume@example.com', 
     description: "User's email address",
@@ -44,7 +44,7 @@ export class RegisterDto {
   username!: string;
 }
 
-export class LoginDto {
+export class LoginRequestDto {
   @ApiProperty({ 
     example: 'jaume@example.com', 
     description: 'Account email address',
@@ -65,7 +65,7 @@ export class LoginDto {
   password!: string;
 }
 
-export class RefreshDto {
+export class RefreshRequestDto {
   @ApiProperty({ 
     example: 'eyJhbGciOiJIUzI1NiIsInR...', 
     description: 'The JWT Refresh Token provided during login',
